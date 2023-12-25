@@ -1,0 +1,44 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below if you are using dep)
+#vendor/
+
+# Compiled Object files, Static and Dynamic libs (remove the comment below if you are using go modules)
+*.o
+*.a
+*.lib
+
+# Folders
+_obj/
+_test/
+build/
+dist/
+vendor/
+
+# Workspace state
+.idea/
+.idea
+
+# User-specific files
+*.rspec
+*.iml
+*.swp
+
+# Go specific
+*.log
+*.test
+*.prof
+
+.env
+
