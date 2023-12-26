@@ -7,15 +7,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func SetupUserAuthRoutes(config *config.DatabaseConfig) *mux.Router {
-	router := mux.NewRouter()
-	router.Use(middleware.Logger)
-	//router.Use(middleware.JWTUserAuthMiddleware)
+func SetupUserAuthRoutes(mainRouter *mux.Router, config *config.DatabaseConfig) {
+	subRouter := mainRouter.PathPrefix("/auth").Subrouter()
+	subRouter.Use(middleware.Logger)
+
+	// Use JWT middleware for routes that require a signed-in user
+	// Use the API key for routes that are for returning a JWT to the user
+	// subRouter.Use(middleware.JWTUserAuthMiddleware)
+	subRouter.Use(middleware.APIKeyValidation)
 
 	userAuthHandler := &handlers.UserAuth{Config: config}
 
-	router.HandleFunc("/signin", userAuthHandler.SignIn).Methods("POST")
-	router.HandleFunc("/signup", userAuthHandler.SignUp).Methods("POST")
-	router.HandleFunc("/deleteAccount", userAuthHandler.DeleteAccount).Methods("DELETE")
-	return router
+	subRouter.HandleFunc("/signin", userAuthHandler.SignIn).Methods("POST")
+	subRouter.HandleFunc("/signup", userAuthHandler.SignUp).Methods("POST")
+	subRouter.HandleFunc("/verifuEmail", userAuthHandler.VerifyEmail).Methods("Post")
 }

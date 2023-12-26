@@ -5,6 +5,7 @@ import (
 	"auth_example/routes"
 	"context"
 	"fmt"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"net/http"
@@ -13,11 +14,12 @@ import (
 func main() {
 	port := 8081
 	address := fmt.Sprintf(":%d", port)
-
+	router := mux.NewRouter()
 	databaseConfig := setupDatabase()
-	userAuthRouter := routes.SetupUserAuthRoutes(databaseConfig)
+	//userAuthRouter := routes.SetupUserAuthRoutes(databaseConfig)
+	routes.SetupRoutes(router, databaseConfig)
 
-	http.Handle("/", userAuthRouter)
+	http.Handle("/", router)
 
 	fmt.Printf("Server is listening on port %d", port)
 	err := http.ListenAndServe(address, nil)

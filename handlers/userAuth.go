@@ -5,7 +5,6 @@ import (
 	"auth_example/models"
 	"auth_example/utils"
 	"encoding/json"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
 )
@@ -23,28 +22,16 @@ func (userAuth *UserAuth) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check if the user choose to sign in with email or username
-	signInWithUserName := signInModel.Username != "" && signInModel.Email == ""
 	var user models.User
-	if signInWithUserName {
-		// find the user by username
-		filter := bson.M{"username": signInModel.Username}
-		err = userAuth.Config.UserCollection.FindOne(r.Context(), filter).Decode(&user)
 
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "Failed to find user by username", http.StatusNotFound)
-			return
-		}
-	} else {
-		// find the user by email
-		filter := bson.M{"email": signInModel.Email}
-		err := userAuth.Config.UserCollection.FindOne(r.Context(), filter).Decode(&user)
-		if err != nil {
-			http.Error(w, "Failed to find user by email", http.StatusNotFound)
-			return
-		}
+	// find the user by email
+	filter := bson.M{"email": signInModel.Email}
+	err = userAuth.Config.UserCollection.FindOne(r.Context(), filter).Decode(&user)
+	if err != nil {
+		http.Error(w, "Failed to find user by email", http.StatusNotFound)
+		return
 	}
+
 	// check if the password is correct
 	if user.Password != signInModel.Password {
 		http.Error(w, "Incorrect password", http.StatusUnauthorized)
@@ -98,6 +85,10 @@ func (userAuth *UserAuth) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (userAuth *UserAuth) VerifyEmail(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func (userAuth *UserAuth) UpdateAccount(w http.ResponseWriter, r *http.Request) {
