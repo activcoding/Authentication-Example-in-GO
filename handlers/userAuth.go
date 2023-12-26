@@ -68,7 +68,7 @@ func (userAuth *UserAuth) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (userAuth *UserAuth) SignUp(w http.ResponseWriter, r *http.Request) {
-	// decode the request body into struct and failed if any error occur
+	// decode the request body into struct and failed if any error occurs
 	var user models.User
 	// TODO: Don't save the password in plaintext
 	err := json.NewDecoder(r.Body).Decode(&user)
