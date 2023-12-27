@@ -20,5 +20,5 @@ func SetupUserAuthRoutes(mainRouter *mux.Router, config *config.DatabaseConfig) 
 
 	subRouter.HandleFunc("/signin", userAuthHandler.SignIn).Methods("POST")
 	subRouter.HandleFunc("/signup", userAuthHandler.SignUp).Methods("POST")
-	subRouter.HandleFunc("/verifuEmail", userAuthHandler.VerifyEmail).Methods("Post")
+	subRouter.HandleFunc("/verifyEmail", userAuthHandler.SendEmailVerification).Methods("Post")
 }

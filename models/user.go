@@ -9,6 +9,7 @@ type User struct {
 	Username         string             `bson:"username"`
 	Password         string             `bson:"password"`
 	Email            string             `bson:"email"`
-	AccountConfirmed bool               `bson:"accountConfirmed"`
+	AccountActivated bool               `bson:"accountActivated"`
+	ActivationCode   string             `bson:"activationCode"`
 	Roles            []string           `bson:"roles"`
 }

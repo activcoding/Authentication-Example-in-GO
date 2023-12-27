@@ -6,7 +6,10 @@ import (
 	"auth_example/utils"
 	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson"
+	"math/rand"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 type UserAuth struct {
@@ -87,8 +90,25 @@ func (userAuth *UserAuth) SignUp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (userAuth *UserAuth) VerifyEmail(w http.ResponseWriter, r *http.Request) {
+func (userAuth *UserAuth) SendEmailVerification(w http.ResponseWriter, r *http.Request) {
+	var user models.SignInModel
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
+		return
+	}
 
+	verificationCode := generateVerificationCode()
+	userAuth.Config.UserCollection.FindOneAndUpdate(r.Context(), bson.M{"email": user.Email, "password": user.Password},
+		bson.M{"$set": bson.M{"activationCode": verificationCode}})
+	//utils.SendEmail(user.Email, "Activation code for your account", "Your activation code is: "+verificationCode)
+}
+
+func generateVerificationCode() string {
+	src := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(src)
+
+	return strconv.Itoa(r.Intn(9000) + 1000)
 }
 
 func (userAuth *UserAuth) UpdateAccount(w http.ResponseWriter, r *http.Request) {
