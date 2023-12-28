@@ -4,6 +4,7 @@ import (
 	"auth_example/config"
 	"auth_example/models"
 	"auth_example/utils"
+	"context"
 	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson"
 	"math/rand"
@@ -40,6 +41,11 @@ func (userAuth *UserAuth) SignIn(w http.ResponseWriter, r *http.Request) {
 	// check if the password is correct
 	if user.Password != signInModel.Password {
 		http.Error(w, "Incorrect password", http.StatusUnauthorized)
+		return
+	}
+
+	if !user.AccountActivated {
+		http.Error(w, "Account not activated", http.StatusUnauthorized)
 		return
 	}
 
@@ -81,6 +87,10 @@ func (userAuth *UserAuth) SignUp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return
 	}
+	if userAuth.checkIfAccountExistsForEmail(user.Email) {
+		http.Error(w, "Account already exists", http.StatusConflict)
+		return
+	}
 
 	// insert the user into the database
 	_, err = userAuth.Config.UserCollection.InsertOne(r.Context(), user)
@@ -92,6 +102,15 @@ func (userAuth *UserAuth) SignUp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (userAuth *UserAuth) checkIfAccountExistsForEmail(email string) bool {
+	var user models.User
+	err := userAuth.Config.UserCollection.FindOne(context.TODO(), bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		return false
+	}
+	// A user with the given email was found
+	return true
+}
 func (userAuth *UserAuth) SendActivationEmail(w http.ResponseWriter, r *http.Request) {
 	var user models.SignInModel
 	err := json.NewDecoder(r.Body).Decode(&user)
