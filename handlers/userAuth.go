@@ -8,7 +8,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -90,7 +92,7 @@ func (userAuth *UserAuth) SignUp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (userAuth *UserAuth) SendEmailVerification(w http.ResponseWriter, r *http.Request) {
+func (userAuth *UserAuth) SendActivationEmail(w http.ResponseWriter, r *http.Request) {
 	var user models.SignInModel
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -101,7 +103,44 @@ func (userAuth *UserAuth) SendEmailVerification(w http.ResponseWriter, r *http.R
 	verificationCode := generateVerificationCode()
 	userAuth.Config.UserCollection.FindOneAndUpdate(r.Context(), bson.M{"email": user.Email, "password": user.Password},
 		bson.M{"$set": bson.M{"activationCode": verificationCode}})
-	//utils.SendEmail(user.Email, "Activation code for your account", "Your activation code is: "+verificationCode)
+
+	// This sends a verification code to the user via a html email, for some clients this might not work
+	// If so just send the code in plain text for now
+	htmlBytpes, err := os.ReadFile("activateEmailTemplate.html")
+	if err != nil {
+		http.Error(w, "Failed to read activationEmail.html", http.StatusInternalServerError)
+		return
+	}
+	html := string(htmlBytpes)
+	finalEmail := strings.Replace(html, "{ACTIVATION_CODE}", verificationCode, 1)
+
+	utils.SendMailWithMailJet(user.Email, user.Email, "Activation code for your account", finalEmail)
+}
+
+func (userAuth *UserAuth) ActivateAccount(w http.ResponseWriter, r *http.Request) {
+	activationCode := r.URL.Query().Get("activationCode")
+	var user models.SignInModel
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
+		return
+	}
+
+	var userFromDB models.User
+	err = userAuth.Config.UserCollection.FindOne(r.Context(), bson.M{"email": user.Email, "password": user.Password}).Decode(&userFromDB)
+	if err != nil {
+		http.Error(w, "Failed to find user by email", http.StatusNotFound)
+		return
+	}
+	if userFromDB.ActivationCode != activationCode {
+		http.Error(w, "Incorrect activation code", http.StatusUnauthorized)
+		return
+	}
+
+	userAuth.Config.UserCollection.FindOneAndUpdate(r.Context(), bson.M{"email": user.Email,
+		"password": user.Password}, bson.M{"$set": bson.M{"accountActivated": true}})
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func generateVerificationCode() string {

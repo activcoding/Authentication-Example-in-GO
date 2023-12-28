@@ -42,7 +42,8 @@ func SendMailWithMailJet(recipientName string, recipientEmail string, subject st
 				},
 			},
 			Subject:  subject,
-			TextPart: message,
+			TextPart: "This is a test email",
+			HTMLPart: message,
 		},
 	}
 
