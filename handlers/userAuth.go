@@ -6,6 +6,7 @@ import (
 	"auth_example/utils"
 	"context"
 	"encoding/json"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"math/rand"
 	"net/http"
@@ -88,12 +89,18 @@ func (userAuth *UserAuth) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if userAuth.checkIfAccountExistsForEmail(user.Email) {
+		fmt.Println("Account already exists")
 		http.Error(w, "Account already exists", http.StatusConflict)
 		return
 	}
 
+	// Generate a verification code and send it to the user via email
+	verificationCode := generateVerificationCode()
+	user.ActivationCode = verificationCode
+	utils.SendMailWithMailJet(user.Email, user.Email, "Activation code for your account", verificationCode)
 	// insert the user into the database
 	_, err = userAuth.Config.UserCollection.InsertOne(r.Context(), user)
+
 	if err != nil {
 		http.Error(w, "Failed to insert user into database", http.StatusInternalServerError)
 		return
