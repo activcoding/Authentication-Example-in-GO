@@ -20,6 +20,6 @@ func SetupUserAuthRoutes(mainRouter *mux.Router, config *config.DatabaseConfig) 
 
 	subRouter.HandleFunc("/signin", userAuthHandler.SignIn).Methods("POST")
 	subRouter.HandleFunc("/signup", userAuthHandler.SignUp).Methods("POST")
-	subRouter.HandleFunc("/sendActivationEmail", userAuthHandler.SendActivationEmail).Methods("Post")
-	subRouter.HandleFunc("/activateAccount", userAuthHandler.ActivateAccount).Methods("Post")
+	subRouter.HandleFunc("/sendActivationEmail", userAuthHandler.SendActivationEmail).Methods("POST")
+	subRouter.HandleFunc("/activateAccount", userAuthHandler.ActivateAccount).Methods("POST")
 }
