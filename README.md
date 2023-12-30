@@ -7,6 +7,7 @@ The corresponding frontend flutter application can be found [here](https://githu
 Ensure you have the following prerequisites installed:
 1. [GO](https://golang.org/)
 2. [MongoDB](https://www.mongodb.com/)
+
 And an account for the following services:
 3. [MailJet](https://www.mailjet.com/)
 
@@ -40,4 +41,4 @@ You can find your MailJet API Key and Secret Key in your MailJet account.
 1. `/exampleRestricted/exampleRestricted` - POST - Just a dummy route to test the authentication
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
