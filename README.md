@@ -9,6 +9,7 @@ Ensure you have the following prerequisites installed:
 2. [MongoDB](https://www.mongodb.com/)
 
 And an account for the following services:
+
 3. [MailJet](https://www.mailjet.com/)
 
 ## Setup
@@ -24,7 +25,9 @@ MAIL_JET_SECRET_KEY=YourMailJetSecretKey
 ```
 Note: JWT_Key, ISS, AUD, and API_Key can be any random string. 
 Ensure they match between the Flutter app and the backend. 
+
 You can find your MailJet API Key and Secret Key in your MailJet account.
+
 3. Run `go run main.go` to start the server on port 8081.
 4. You can test the server with Postman or the [Flutter App](https://github.com/activcoding/authenticaion-example-with-flutter).
 
